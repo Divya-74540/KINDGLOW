@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+.landing-view { background: #fdfaf9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
+
+.inner-container { 
+    background: white; 
+    padding: 80px; 
+    border-radius: 60px; 
+    width: 100%; 
+    max-width: 1200px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05); 
+}
+
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 80px; }
+.logo { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: #2d2926; }
+.nav-links { display: flex; gap: 30px; color: #5a5a5a; font-family: 'Montserrat', sans-serif; cursor: pointer; }
+
+.hero { display: flex; align-items: center; justify-content: space-between; }
+.hero-text { max-width: 50%; }
+.hero-text h1 { font-family: 'Playfair Display', serif; font-size: 64px; line-height: 1.1; color: #2d2926; margin-bottom: 20px; }
+.hero-text p { font-size: 18px; color: #666; margin-top: 20px; }
+
+.card-container { position: relative; width: 450px; height: 500px; }
+
+/* The Card Frame */
+.card { 
+    position: absolute; 
+    background: white; 
+    padding: 40px; /* Increased padding for an even wider border frame */
+    border-radius: 40px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15); 
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden; 
+}
+
+.card img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    border-radius: 10px; /* Sharper corners to fit inside the wider padding */
+    display: block; 
+    backface-visibility: hidden; 
+    border: none; 
+    transform: translateZ(0); 
+}
+
+/* Card Positioning */
+.card-front { width: 300px; height: 400px; transform: rotate(5deg); left: 100px; top: 0; z-index: 2; }
+.card-back { width: 300px; height: 400px; transform: rotate(-10deg); left: 0; top: 20px; z-index: 1; }
+
+.card-container:hover .card-back { transform: rotate(-20deg) translateY(10px); }
+.card-container:hover .card-front { transform: rotate(10deg) translateY(-10px); }
+
+/* The Peel Effect */
+.card-front::before {
+    content: ""; position: absolute; top: 0; right: 0;
+    width: 80px; height: 80px; 
+    background: linear-gradient(135deg, #f0f0f0 50%, #dcdcdc 50%);
+    box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
+    z-index: 3;
+    border-bottom-left-radius: 20px;
+}
