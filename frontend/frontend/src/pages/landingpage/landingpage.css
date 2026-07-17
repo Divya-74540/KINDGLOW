@@ -24,12 +24,12 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 
 .card-container { position: relative; width: 450px; height: 500px; }
 
-/* The Card Frame */
+/* The Card Frame - Padding slightly increased */
 .card { 
     position: absolute; 
     background: white; 
-    padding: 40px; /* Increased padding for an even wider border frame */
-    border-radius: 40px; 
+    padding: 20px; /* Increased from 15px for a slightly bigger border */
+    border-radius: 28px; 
     box-shadow: 0 15px 35px rgba(0,0,0,0.15); 
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     overflow: hidden; 
@@ -39,7 +39,7 @@ header { display: flex; justify-content: space-between; align-items: center; mar
     width: 100%; 
     height: 100%; 
     object-fit: cover; 
-    border-radius: 10px; /* Sharper corners to fit inside the wider padding */
+    border-radius: 15px; 
     display: block; 
     backface-visibility: hidden; 
     border: none; 
@@ -56,9 +56,9 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 /* The Peel Effect */
 .card-front::before {
     content: ""; position: absolute; top: 0; right: 0;
-    width: 80px; height: 80px; 
+    width: 70px; height: 70px; 
     background: linear-gradient(135deg, #f0f0f0 50%, #dcdcdc 50%);
     box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
     z-index: 3;
-    border-bottom-left-radius: 20px;
+    border-bottom-left-radius: 15px;
 }
