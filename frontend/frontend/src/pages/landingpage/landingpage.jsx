@@ -5,7 +5,7 @@ import "./landingpage.css";
 import serumImage from "../../asset/images/serum.png";
 import homeImage from "../../asset/images/home.jpg";
 
-// ==================== 10 FEATURE ASSET IMPORTS ====================
+// Feature Asset Imports
 import routineImg from "../../asset/images/routine.jpg";
 import acneImg from "../../asset/images/acne.jpg";
 import analyzerImg from "../../asset/images/analyzer.jpg";
@@ -17,7 +17,7 @@ import sunscreenImg from "../../asset/images/sunscreen.jpg";
 import sensitiveImg from "../../asset/images/sensitive.jpg";
 import journalImg from "../../asset/images/journal.jpg";
 
-function LandingPage() {
+function LandingPage({ onLoginSuccess }) { // Catching the login handler prop from App.js
     const homeRef = useRef(null);
     const aboutRef = useRef(null);
     const serviceRef = useRef(null);
@@ -62,7 +62,6 @@ function LandingPage() {
         setShowAuthModal(true);
     };
 
-    // Refined workflow routing rule
     const handleAuthSubmit = (e) => {
         e.preventDefault();
         if (authMode === "register") {
@@ -71,6 +70,11 @@ function LandingPage() {
         } else {
             triggerToast("Authentication matrix verification successful. Entry granted.", "success");
             setShowAuthModal(false);
+            
+            // This triggers the view toggle in App.js to open your dashboard layout instantly
+            if (onLoginSuccess) {
+                onLoginSuccess();
+            }
         }
     };
 
@@ -92,6 +96,10 @@ function LandingPage() {
         { title: "AI Sensitive Skin Advisor", desc: "Defensive scanning mechanisms built explicitly to flag irritants and custom allergens.", tag: "Safety First", image: sensitiveImg },
         { title: "AI Beauty Journal", desc: "Visual timeline interface to track logs, capture photos, and map real skin transformations.", tag: "Analytics", image: journalImg }
     ];
+
+    const resolveImageSrc = (imgAsset) => {
+        return imgAsset && typeof imgAsset === 'object' ? imgAsset.default : imgAsset;
+    };
 
     return (
         <div className="landing-view">
@@ -129,10 +137,10 @@ function LandingPage() {
 
                         <section className="card-container">
                             <div className="card card-back">
-                                <img src={serumImage && typeof serumImage === 'object' ? serumImage.default : serumImage} alt="Serum" />
+                                <img src={resolveImageSrc(serumImage)} alt="Serum" />
                             </div>
                             <div className="card card-front">
-                                <img src={homeImage && typeof homeImage === 'object' ? homeImage.default : homeImage} alt="Skincare" />
+                                <img src={resolveImageSrc(homeImage)} alt="Skincare" />
                             </div>
                         </section>
                     </main>
@@ -266,7 +274,7 @@ function LandingPage() {
                                     >
                                         <div className="feature-image-frame">
                                             {feature.image ? (
-                                                <img src={feature.image && typeof feature.image === 'object' ? feature.image.default : feature.image} alt={feature.title} />
+                                                <img src={resolveImageSrc(feature.image)} alt={feature.title} />
                                             ) : (
                                                 <div className="image-placeholder-art">
                                                     <div className="sparkle-effect">✨</div>
@@ -333,7 +341,7 @@ function LandingPage() {
                                 </div>
                                 <div className="coord-item">
                                     <span className="coord-label">Response Metrics</span>
-                                    <span className="coord-value">Avg &lt; 240ms via Ollama Engine</span>
+                                    <span className="coord-value">Avg under 240ms via Ollama Engine</span>
                                 </div>
                             </div>
                         </div>

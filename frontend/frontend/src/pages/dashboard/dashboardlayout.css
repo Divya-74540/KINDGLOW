@@ -1,0 +1,479 @@
+/* --- Global Dashboard Container Reset --- */
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    background-color: #fcfaf7;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    color: #2d2926;
+    overflow: hidden;
+}
+
+/* --- Moving Cosmic Background Mesh Layers --- */
+.cosmic-bg-mesh {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    background: linear-gradient(145deg, #fdf8f5 0%, #f6effb 40%, #edf4fe 80%, #fff6f9 100%);
+    background-size: 300% 300%;
+    animation: cosmicWave 16s ease infinite alternate;
+}
+
+.cosmic-bg-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(243, 193, 207, 0.25) 0%, rgba(224, 231, 255, 0) 70%);
+    top: -150px;
+    right: -100px;
+    z-index: 2;
+    pointer-events: none;
+    animation: slowOrbit 25s linear infinite;
+}
+
+@keyframes cosmicWave {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes slowOrbit {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(-80px, 60px) rotate(180deg); }
+    100% { transform: translate(0, 0) rotate(360deg); }
+}
+
+/* --- Workspace Structure Mapping --- */
+.dashboard-workspace {
+    display: flex;
+    flex: 1;
+    position: relative;
+    z-index: 5;
+    height: 100vh;
+}
+
+/* --- CENTERED HERO HEADER SECTION --- */
+.center-aligned-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.centered-hero-header {
+    text-align: center;
+    margin: 25px auto 15px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: 750px;
+}
+
+/* Dynamic Text Gradients */
+.centered-hero-header h2.gradient-text {
+    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #1a1a1a 0%, #634b9f 50%, #d2738a 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmerText 4s linear infinite;
+}
+
+@keyframes shimmerText {
+    to { background-position: 200% center; }
+}
+
+.centered-hero-header p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #6e645e;
+    font-weight: 500;
+}
+
+/* Header Brand Badge Aura Glow */
+.aura-effect {
+    background: linear-gradient(135deg, #fff0f5 0%, #f3e8ff 100%) !important;
+    color: #b7526c !important;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 1px solid rgba(243, 193, 207, 0.8) !important;
+    box-shadow: 0 0 0 0 rgba(243, 193, 207, 0.7);
+    animation: neonAura 2s infinite cubic-bezier(0.66, 0, 0, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+@keyframes neonAura {
+    to { box-shadow: 0 0 0 8px rgba(243, 193, 207, 0); }
+}
+
+.sparkle-icon {
+    display: inline-block;
+    animation: spinSparkle 3s linear infinite;
+}
+
+@keyframes spinSparkle {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.15); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+/* --- LEFT SIDEBAR PANEL SYSTEM (Collapsible & Spaced Out) --- */
+.sidebar-glass {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    flex-direction: column;
+    gap: 28px; /* Increased padding between widgets to look clean and spaced out */
+}
+
+.left-side-panel {
+    border-right: 1px dashed rgba(229, 222, 201, 0.7);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s ease;
+}
+
+.sidebar-glass.open {
+    width: 320px; /* Slight enlargement to gracefully spread components out */
+    transform: translateX(0);
+    padding: 30px 24px; /* Generous wrapper frame spacing */
+}
+
+.sidebar-glass.closed {
+    width: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    transform: translateX(-340px); /* Hides cleanly out of left screen bounds */
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Floating Smooth Toggle Button Control (Left Side Navigation) */
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 20px;
+    z-index: 100;
+    width: 36px;
+    height: 36px;
+    background: #ffffff;
+    border: 1px solid rgba(243, 193, 207, 0.8);
+    color: #b7526c;
+    border-radius: 50%;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-toggle-btn:hover {
+    background: #fff0f5;
+    transform: scale(1.1);
+}
+
+.sidebar-toggle-btn.is-open {
+    left: 335px; /* Sits cleanly on top of the outer layout edge line */
+}
+
+.sidebar-toggle-btn.is-closed {
+    left: 20px; /* Sticks right on screen frame margin when inner panel is hidden */
+}
+
+/* --- Profile Card Section Layout --- */
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #e5dec9;
+    margin-bottom: 5px;
+}
+
+.profile-avatar {
+    position: relative;
+    font-size: 1.8rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(229, 222, 201, 0.5);
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 0.75rem;
+    color: #4caf50;
+}
+
+.profile-info h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #1a1a1a;
+}
+
+.profile-info span {
+    font-size: 0.8rem;
+    color: #8c827a;
+}
+
+/* --- Core Sidebar Widgets --- */
+.sidebar-widget {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.widget-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #4a443f;
+}
+
+.widget-bar-bg {
+    width: 100%;
+    height: 8px;
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.moisture-bar-fill {
+    height: 100%;
+    background-color: #f3c1cf;
+    border-radius: 6px;
+}
+
+.task-bar-fill {
+    height: 100%;
+    background-color: #bfa38a;
+    border-radius: 6px;
+}
+
+/* --- Sunscreen Reminder Box --- */
+.reminder-box {
+    background-color: rgba(255, 251, 240, 0.8);
+    border: 1px dashed #f5dba6;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(245, 219, 166, 0.15);
+}
+
+.reminder-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #bfa38a;
+    margin-bottom: 8px;
+}
+
+.reminder-status.active {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+.reminder-desc {
+    margin: 0;
+    font-size: 0.78rem;
+    color: #7c6e65;
+    line-height: 1.4;
+}
+
+/* --- Recent Activity Section Layout --- */
+.widget-title-sm {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #a3978e;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.history-list li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(229, 222, 201, 0.4);
+}
+
+.history-list li:last-child {
+    border-bottom: none;
+}
+
+.history-icon {
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.history-text p {
+    margin: 0 0 3px 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #2d2926;
+}
+
+.history-text span {
+    font-size: 0.75rem;
+    color: #a3978e;
+}
+
+.logout-btn {
+    width: 100%;
+    margin-top: auto;
+    padding: 10px;
+    border: 1px dashed #d2738a;
+    color: #d2738a;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+/* --- Main Features Content Grid Adjustments --- */
+.main-content-panel {
+    flex: 1;
+    padding: 20px 40px;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.panel-instruction-heading {
+    text-align: center;
+    font-size: 1.05rem;
+    letter-spacing: 1.5px;
+    color: #8c827a;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.magic-rituals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto 50px auto;
+}
+
+/* --- Premium Magic Feature Card Elements --- */
+.unique-magic-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px dashed rgba(229, 222, 201, 0.9);
+    border-radius: 20px;
+    padding: 22px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 180px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.unique-magic-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    background: #ffffff;
+    border: 1px solid rgba(243, 193, 207, 0.9);
+    box-shadow: 0 20px 35px rgba(243, 193, 207, 0.35);
+}
+
+.card-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #8c827a;
+}
+
+.ritual-card h4 {
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    color: #1a1a1a;
+}
+
+.card-description {
+    margin: 0 0 8px 0;
+    font-size: 0.78rem;
+    color: #8c827a;
+}
+
+.floating-icon {
+    font-size: 2.4rem;
+    margin: 8px 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.unique-magic-card:hover .floating-icon {
+    transform: scale(1.25) rotate(7deg);
+}
+
+.custom-link-effect {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #bfa38a;
+    cursor: pointer;
+    margin-top: auto;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.unique-magic-card:hover .custom-link-effect {
+    color: #d2738a;
+    transform: translateX(6px);
+}
+
+/* --- Visual Keyframe Animations --- */
+.animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-card { animation: scaleInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleInUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+.avatar-bounce:hover { animation: casualBounce 0.6s ease infinite alternate; }
+@keyframes casualBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-6px); } }
+
+.filled-progress-bar { animation: progressFill 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; transform-origin: left; }
+@keyframes progressFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.float-reminder { animation: gentleFloat 3s ease-in-out infinite; }
+@keyframes gentleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+.blink-alert { animation: subtleBlink 1.5s infinite ease-in-out; }
+@keyframes subtleBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+.history-item { transition: transform 0.2s ease, background-color 0.2s ease; border-radius: 6px; padding: 4px; }
+.history-item:hover { transform: translateX(5px); background-color: rgba(255, 255, 255, 0.8); }
+
+.interactive-button { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); background: rgba(255, 255, 255, 0.5); }
+.interactive-button:hover { background-color: #d2738a !important; color: #ffffff !important; box-shadow: 0 6px 16px rgba(210, 115, 138, 0.35); transform: translateY(-2px); }
