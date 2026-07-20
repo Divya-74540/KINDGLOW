@@ -28,9 +28,19 @@ function LandingPage() {
     const [activeTopic, setActiveTopic] = useState("general");
     const [formSubmitted, setFormSubmitted] = useState(false);
     
-    // ✦ 1. THESE STATES MUST BE ADDED FOR THE LOGIN BUTTON
+    // Auth Modal Overlay States
     const [showAuthModal, setShowAuthModal] = useState(false);
-    const [authMode, setAuthMode] = useState("login"); // 'login' or 'register'
+    const [authMode, setAuthMode] = useState("login");
+
+    // Dynamic Professional Toast Notifications
+    const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
+
+    const triggerToast = (message, type = "info") => {
+        setToast({ visible: true, message, type });
+        setTimeout(() => {
+            setToast((prev) => ({ ...prev, visible: false }));
+        }, 4000);
+    };
 
     const scrollToSection = (elementRef) => {
         elementRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -43,14 +53,25 @@ function LandingPage() {
     const handleContactSubmit = (e) => {
         e.preventDefault();
         setFormSubmitted(true);
+        triggerToast("Transmission dispatched successfully to system terminal.", "success");
         setTimeout(() => setFormSubmitted(false), 4000);
     };
 
-    // ✦ 2. THIS FUNCTION HANDLES THE SUBMIT EVENT
+    const triggerContactRegister = () => {
+        setAuthMode("register");
+        setShowAuthModal(true);
+    };
+
+    // Refined workflow routing rule
     const handleAuthSubmit = (e) => {
         e.preventDefault();
-        alert(`${authMode === "login" ? "Login" : "Registration"} workflow triggered successfully!`);
-        setShowAuthModal(false);
+        if (authMode === "register") {
+            triggerToast("Profile node established. Re-routing to Authentication console...", "success");
+            setAuthMode("login"); 
+        } else {
+            triggerToast("Authentication matrix verification successful. Entry granted.", "success");
+            setShowAuthModal(false);
+        }
     };
 
     const topicDetails = {
@@ -74,6 +95,12 @@ function LandingPage() {
 
     return (
         <div className="landing-view">
+            {/* Professional App Toast Notification Banner */}
+            <div className={`app-toast-alert ${toast.visible ? "toast-active" : ""} toast-${toast.type}`}>
+                <div className="toast-indicator-dot"></div>
+                <p className="toast-msg-body">{toast.message}</p>
+            </div>
+
             {/* ==================== 1. HOME SCREEN BLOCK ==================== */}
             <div ref={homeRef} className="screen-block layer-white">
                 <div className="inner-container">
@@ -85,8 +112,7 @@ function LandingPage() {
                             <span onClick={() => scrollToSection(serviceRef)}>Service</span>
                             <span onClick={() => scrollToSection(featuresRef)}>Features</span>
                             <span onClick={() => scrollToSection(contactRef)}>Contact</span>
-                            {/* ✦ 3. THE LOGIN BUTTON NOW CALLS THE STATE SETTERS */}
-                            <span onClick={() => { setAuthMode("login"); setShowAuthModal(true); }} className="nav-login-btn">Login</span>
+                            <span onClick={() => { setAuthMode("login"); setShowAuthModal(true); }}>Login</span>
                         </nav>
                     </header>
 
@@ -209,8 +235,6 @@ function LandingPage() {
             <div ref={featuresRef} className="screen-block layer-white">
                 <div className="inner-container">
                     <main className="features-studio-layout">
-                        
-                        {/* Left Interactive Item Selector */}
                         <section className="features-list-pane">
                             <span className="section-label">SYSTEM CORE CAPABILITIES</span>
                             <h2 className="studio-heading">INTELLIGENT APPLICATION SUITE</h2>
@@ -233,7 +257,6 @@ function LandingPage() {
                             </div>
                         </section>
 
-                        {/* Right Display Deck Frame */}
                         <section className="features-gallery-pane">
                             <div className="sticky-gallery-frame">
                                 {featuresData.map((feature, idx) => (
@@ -261,7 +284,6 @@ function LandingPage() {
                                 ))}
                             </div>
                         </section>
-
                     </main>
                     
                     <div className="features-footer-action">
@@ -341,13 +363,25 @@ function LandingPage() {
                                         <label htmlFor="client-msg">Type your message or custom integration needs...</label>
                                     </div>
 
-                                    <button type="submit" className="console-submit-btn">
-                                        <span>Initialize Transmission</span>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                        </svg>
-                                    </button>
+                                    <div className="form-action-row">
+                                        <button type="submit" className="console-submit-btn font-primary-btn">
+                                            <span>Initialize Transmission</span>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                            </svg>
+                                        </button>
+                                        
+                                        <button type="button" onClick={triggerContactRegister} className="console-submit-btn font-secondary-btn">
+                                            <span>Register Account Node</span>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="8.5" cy="7" r="4"></circle>
+                                                <line x1="20" y1="8" x2="20" y2="14"></line>
+                                                <line x1="23" y1="11" x2="17" y2="11"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </form>
                             )}
                         </div>
@@ -356,7 +390,6 @@ function LandingPage() {
             </div>
 
             {/* ==================== 6. INTERACTIVE AUTHENTICATION MODAL ==================== */}
-            {/* ✦ 4. THIS ENTIRE CONDITION RENDERS THE MODAL WINDOW CONTAINER */}
             {showAuthModal && (
                 <div className="auth-overlay-backdrop" onClick={() => setShowAuthModal(false)}>
                     <div className="auth-modal-window" onClick={(e) => e.stopPropagation()}>
@@ -421,7 +454,6 @@ function LandingPage() {
                     </div>
                 </div>
             )}
-
         </div>
     );
 }
