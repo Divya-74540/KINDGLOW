@@ -1,310 +1,293 @@
-/* --- Global Dashboard Container Reset --- */
-.dashboard-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    position: relative;
-    background-color: #fcfaf7;
-    font-family: 'Segoe UI', Roboto, sans-serif;
-    color: #2d2926;
-    overflow: hidden;
+/* ==========================================================================
+   LAYOUT & GLOBAL STYLES
+   ========================================================================== */
+:root {
+    --primary-glow: #e2b6cf;
+    --accent-pink: #f8bbd0;
+    --accent-purple: #e1bee7;
+    --bg-light: #fbf7fb;
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --text-dark: #2d232e;
+    --text-muted: #7a6b7d;
 }
 
-/* --- Moving Cosmic Background Mesh Layers --- */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+}
+
+.dashboard-container {
+    position: relative;
+    min-height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    background: linear-gradient(135deg, #faf3f8 0%, #f4f0fb 100%);
+}
+
 .cosmic-bg-mesh {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-    background: linear-gradient(145deg, #fdf8f5 0%, #f6effb 40%, #edf4fe 80%, #fff6f9 100%);
-    background-size: 300% 300%;
-    animation: cosmicWave 16s ease infinite alternate;
-}
-
-.cosmic-bg-glow {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(243, 193, 207, 0.25) 0%, rgba(224, 231, 255, 0) 70%);
-    top: -150px;
-    right: -100px;
-    z-index: 2;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 20%, rgba(248, 187, 208, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(225, 190, 231, 0.25) 0%, transparent 40%);
     pointer-events: none;
-    animation: slowOrbit 25s linear infinite;
+    z-index: 0;
 }
 
-@keyframes cosmicWave {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes slowOrbit {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    50% { transform: translate(-80px, 60px) rotate(180deg); }
-    100% { transform: translate(0, 0) rotate(360deg); }
-}
-
-/* --- Workspace Structure Mapping --- */
 .dashboard-workspace {
     display: flex;
-    flex: 1;
     position: relative;
-    z-index: 5;
-    height: 100vh;
+    z-index: 1;
+    min-height: 100vh;
 }
 
-/* --- CENTERED HERO HEADER SECTION --- */
-.center-aligned-layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.centered-hero-header {
-    text-align: center;
-    margin: 25px auto 15px auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    max-width: 750px;
-}
-
-/* Dynamic Text Gradients */
-.centered-hero-header h2.gradient-text {
-    margin: 0;
-    font-size: 1.7rem;
-    font-weight: 700;
-    background: linear-gradient(90deg, #1a1a1a 0%, #634b9f 50%, #d2738a 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmerText 4s linear infinite;
-}
-
-@keyframes shimmerText {
-    to { background-position: 200% center; }
-}
-
-.centered-hero-header p {
-    margin: 0;
-    font-size: 0.95rem;
-    color: #6e645e;
-    font-weight: 500;
-}
-
-/* Header Brand Badge Aura Glow */
-.aura-effect {
-    background: linear-gradient(135deg, #fff0f5 0%, #f3e8ff 100%) !important;
-    color: #b7526c !important;
-    padding: 6px 14px;
-    border-radius: 30px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    border: 1px solid rgba(243, 193, 207, 0.8) !important;
-    box-shadow: 0 0 0 0 rgba(243, 193, 207, 0.7);
-    animation: neonAura 2s infinite cubic-bezier(0.66, 0, 0, 1);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-@keyframes neonAura {
-    to { box-shadow: 0 0 0 8px rgba(243, 193, 207, 0); }
-}
-
-.sparkle-icon {
-    display: inline-block;
-    animation: spinSparkle 3s linear infinite;
-}
-
-@keyframes spinSparkle {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.15); }
-    100% { transform: rotate(360deg) scale(1); }
-}
-
-/* --- LEFT SIDEBAR PANEL SYSTEM (Collapsible & Spaced Out) --- */
-.sidebar-glass {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: flex;
-    flex-direction: column;
-    gap: 28px; /* Increased padding between widgets to look clean and spaced out */
-}
-
-.left-side-panel {
-    border-right: 1px dashed rgba(229, 222, 201, 0.7);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), width 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s ease;
-}
-
-.sidebar-glass.open {
-    width: 320px; /* Slight enlargement to gracefully spread components out */
-    transform: translateX(0);
-    padding: 30px 24px; /* Generous wrapper frame spacing */
-}
-
-.sidebar-glass.closed {
-    width: 0px;
-    padding-left: 0px;
-    padding-right: 0px;
-    transform: translateX(-340px); /* Hides cleanly out of left screen bounds */
-    overflow: hidden;
-    pointer-events: none;
-}
-
-/* Floating Smooth Toggle Button Control (Left Side Navigation) */
+/* ==========================================================================
+   SIDEBAR TOGGLE BUTTON
+   ========================================================================== */
 .sidebar-toggle-btn {
-    position: absolute;
+    position: fixed;
     top: 20px;
+    left: 20px;
     z-index: 100;
     width: 36px;
     height: 36px;
-    background: #ffffff;
-    border: 1px solid rgba(243, 193, 207, 0.8);
-    color: #b7526c;
     border-radius: 50%;
-    font-weight: bold;
+    background: #ffffff;
+    border: 1px solid #f0e6ed;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--text-dark);
+    transition: all 0.3s ease;
 }
 
 .sidebar-toggle-btn:hover {
-    background: #fff0f5;
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
-.sidebar-toggle-btn.is-open {
-    left: 335px; /* Sits cleanly on top of the outer layout edge line */
+/* ==========================================================================
+   SIDEBAR STYLES
+   ========================================================================== */
+.dashboard-sidebar {
+    width: 310px;
+    padding: 24px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    border-right: 1px solid rgba(255, 255, 255, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
 }
 
-.sidebar-toggle-btn.is-closed {
-    left: 20px; /* Sticks right on screen frame margin when inner panel is hidden */
+.dashboard-sidebar.closed {
+    margin-left: -310px;
+    opacity: 0;
 }
 
-/* --- Profile Card Section Layout --- */
+/* Profile Card */
 .profile-card {
     display: flex;
     align-items: center;
-    gap: 18px;
-    padding-bottom: 20px;
-    border-bottom: 1px dashed #e5dec9;
-    margin-bottom: 5px;
+    gap: 14px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    border: 1px solid rgba(240, 230, 240, 0.8);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .profile-avatar {
     position: relative;
-    font-size: 1.8rem;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 8px;
+    width: 42px;
+    height: 42px;
+    background: #fce4ec;
     border-radius: 50%;
-    border: 1px solid rgba(229, 222, 201, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e91e63;
 }
 
 .status-dot {
     position: absolute;
     bottom: 2px;
     right: 2px;
-    font-size: 0.75rem;
     color: #4caf50;
+    font-size: 10px;
 }
 
 .profile-info h3 {
     margin: 0;
-    font-size: 1.05rem;
-    color: #1a1a1a;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
 }
 
 .profile-info span {
-    font-size: 0.8rem;
-    color: #8c827a;
+    font-size: 0.78rem;
+    color: var(--text-muted);
 }
 
-/* --- Core Sidebar Widgets --- */
+/* Widgets Base */
 .sidebar-widget {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid #f3e8f0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
 }
 
 .widget-label {
     display: flex;
     justify-content: space-between;
-    font-size: 0.88rem;
+    align-items: center;
     font-weight: 600;
-    margin-bottom: 4px;
-    color: #4a443f;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.label-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.percentage-badge {
+    color: #e91e63;
+    font-weight: 700;
 }
 
 .widget-bar-bg {
     width: 100%;
     height: 8px;
-    background-color: rgba(0,0,0,0.05);
-    border-radius: 6px;
+    background: #f5edf3;
+    border-radius: 10px;
     overflow: hidden;
+    margin-bottom: 12px;
 }
 
-.moisture-bar-fill {
+.filled-progress-bar {
     height: 100%;
-    background-color: #f3c1cf;
-    border-radius: 6px;
+    background: linear-gradient(90deg, #f48fb1, #ce93d8);
+    border-radius: 10px;
+    transition: width 0.4s ease;
 }
 
-.task-bar-fill {
-    height: 100%;
-    background-color: #bfa38a;
-    border-radius: 6px;
+/* Moisture Checklist */
+.widget-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-/* --- Sunscreen Reminder Box --- */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-dark);
+    cursor: pointer;
+}
+
+.widget-subtext {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ==========================================================================
+   SUNSCREEN REMINDER WIDGET
+   ========================================================================== */
+.reminder-widget {
+    background: #fff8f6;
+    border: 1px solid #ffe0b2;
+}
+
 .reminder-box {
-    background-color: rgba(255, 251, 240, 0.8);
-    border: 1px dashed #f5dba6;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(245, 219, 166, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .reminder-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.85rem;
+    align-items: center;
+}
+
+.reminder-status {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
     font-weight: 700;
-    color: #bfa38a;
-    margin-bottom: 8px;
 }
 
 .reminder-status.active {
-    background-color: #ffebee;
-    color: #c62828;
-    padding: 1px 5px;
-    border-radius: 4px;
-    font-size: 0.7rem;
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.reminder-status.applied {
+    background: #e8f5e9;
+    color: #2e7d32;
 }
 
 .reminder-desc {
     margin: 0;
     font-size: 0.78rem;
-    color: #7c6e65;
-    line-height: 1.4;
+    color: #665b57;
+    line-height: 1.35;
 }
 
-/* --- Recent Activity Section Layout --- */
+/* Sunscreen Button */
+.sunscreen-action-btn {
+    margin-top: 6px;
+    width: 100%;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #f4511e 0%, #e64a19 100%);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 3px 8px rgba(244, 81, 30, 0.25);
+    transition: all 0.25s ease;
+}
+
+.sunscreen-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(244, 81, 30, 0.35);
+}
+
+.sunscreen-action-btn.applied {
+    background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+    box-shadow: 0 3px 8px rgba(67, 160, 71, 0.25);
+}
+
+/* Activity History */
 .widget-title-sm {
     font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #a3978e;
     font-weight: 700;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
 }
 
 .history-list {
@@ -313,167 +296,180 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
 }
 
-.history-list li {
+.history-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding-bottom: 12px;
-    border-bottom: 1px dashed rgba(229, 222, 201, 0.4);
-}
-
-.history-list li:last-child {
-    border-bottom: none;
+    gap: 10px;
 }
 
 .history-icon {
-    font-size: 1rem;
-    background: rgba(255, 255, 255, 0.6);
-    padding: 5px;
-    border-radius: 4px;
+    color: #ba68c8;
 }
 
 .history-text p {
-    margin: 0 0 3px 0;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #2d2926;
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
 }
 
 .history-text span {
-    font-size: 0.75rem;
-    color: #a3978e;
+    font-size: 0.68rem;
+    color: var(--text-muted);
 }
 
+/* Logout Button */
 .logout-btn {
-    width: 100%;
     margin-top: auto;
     padding: 10px;
-    border: 1px dashed #d2738a;
-    color: #d2738a;
-    border-radius: 8px;
-    cursor: pointer;
+    border: 1px solid #f0dbe8;
+    background: #ffffff;
+    border-radius: 12px;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.82rem;
+    color: #c2185b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
 }
 
-/* --- Main Features Content Grid Adjustments --- */
+.logout-btn:hover {
+    background: #fce4ec;
+}
+
+/* ==========================================================================
+   MAIN CONTENT AREA & RITUAL CARDS
+   ========================================================================== */
 .main-content-panel {
     flex: 1;
-    padding: 20px 40px;
-    overflow-y: auto;
-    max-height: 100vh;
+    padding: 40px 50px;
+    max-width: 1200px;
+}
+
+.centered-hero-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.hub-logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ab47bc;
+    border: 1px solid #f3e5f5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    margin-bottom: 12px;
+}
+
+.gradient-text {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    background: linear-gradient(135deg, #8e24aa 0%, #d81b60 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.centered-hero-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
 }
 
 .panel-instruction-heading {
-    text-align: center;
-    font-size: 1.05rem;
-    letter-spacing: 1.5px;
-    color: #8c827a;
-    margin-bottom: 25px;
-    text-transform: uppercase;
-    font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text-dark);
 }
 
+/* Ritual Grid */
 .magic-rituals-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 20px;
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto 50px auto;
 }
 
-/* --- Premium Magic Feature Card Elements --- */
-.unique-magic-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px dashed rgba(229, 222, 201, 0.9);
+.ritual-card {
+    background: #ffffff;
     border-radius: 20px;
-    padding: 22px;
-    text-align: center;
+    padding: 20px;
+    border: 1px solid #f3e8f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: space-between;
-    min-height: 180px;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.unique-magic-card:hover {
-    transform: translateY(-8px) scale(1.03);
-    background: #ffffff;
-    border: 1px solid rgba(243, 193, 207, 0.9);
-    box-shadow: 0 20px 35px rgba(243, 193, 207, 0.35);
+.ritual-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(186, 104, 200, 0.12);
+}
+
+.card-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
 }
 
 .card-badge {
     font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #8c827a;
+    color: #ab47bc;
+}
+
+.card-icon {
+    color: #ab47bc;
+    margin-bottom: 12px;
 }
 
 .ritual-card h4 {
-    margin: 0 0 4px 0;
+    margin: 0 0 6px 0;
     font-size: 1rem;
-    color: #1a1a1a;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
 .card-description {
-    margin: 0 0 8px 0;
     font-size: 0.78rem;
-    color: #8c827a;
+    color: var(--text-muted);
+    margin: 0 0 14px 0;
 }
 
-.floating-icon {
-    font-size: 2.4rem;
-    margin: 8px 0;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.unique-magic-card:hover .floating-icon {
-    transform: scale(1.25) rotate(7deg);
-}
-
-.custom-link-effect {
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: #bfa38a;
+.launch-action-link {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #d81b60;
     cursor: pointer;
-    margin-top: auto;
-    transition: color 0.3s ease, transform 0.3s ease;
+    text-align: left;
+    margin-top: 10px;
 }
 
-.unique-magic-card:hover .custom-link-effect {
-    color: #d2738a;
-    transform: translateX(6px);
+.panel-completed {
+    background: #faf4f8;
+    border-color: #e1bee7;
 }
 
-/* --- Visual Keyframe Animations --- */
-.animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-card { animation: scaleInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes scaleInUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-.avatar-bounce:hover { animation: casualBounce 0.6s ease infinite alternate; }
-@keyframes casualBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-6px); } }
-
-.filled-progress-bar { animation: progressFill 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; transform-origin: left; }
-@keyframes progressFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-
-.float-reminder { animation: gentleFloat 3s ease-in-out infinite; }
-@keyframes gentleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-
-.blink-alert { animation: subtleBlink 1.5s infinite ease-in-out; }
-@keyframes subtleBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
-.history-item { transition: transform 0.2s ease, background-color 0.2s ease; border-radius: 6px; padding: 4px; }
-.history-item:hover { transform: translateX(5px); background-color: rgba(255, 255, 255, 0.8); }
-
-.interactive-button { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); background: rgba(255, 255, 255, 0.5); }
-.interactive-button:hover { background-color: #d2738a !important; color: #ffffff !important; box-shadow: 0 6px 16px rgba(210, 115, 138, 0.35); transform: translateY(-2px); }
+.completed-text {
+    color: #2e7d32;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
