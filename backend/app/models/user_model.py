@@ -1,8 +1,11 @@
 import uuid
+from datetime import datetime
 from sqlalchemy import Column, String, Boolean, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.core.database import Base
+
 
 class User(Base):
     __tablename__ = "users"
@@ -14,5 +17,6 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    # 1-to-1 Relationship to Profile
+    # 1-to-1 Relationships
     profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    routine = relationship("Routine", back_populates="user", uselist=False, cascade="all, delete-orphan")

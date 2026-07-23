@@ -1,10 +1,15 @@
+import json
+import re
 import httpx
+from typing import AsyncGenerator
 from app.core.config import settings
 from app.models.profile_model import Profile
+
 
 class AIService:
     @staticmethod
     def build_system_prompt(profile: Profile) -> str:
+        """Constructs a system prompt injecting the user's skin profile context."""
         concerns = ", ".join(profile.skin_concerns) if profile.skin_concerns else "None specified"
         allergies = ", ".join(profile.known_allergies) if profile.known_allergies else "None"
         
@@ -20,9 +25,8 @@ class AIService:
         )
 
     async def generate_response(self, prompt: str, profile: Profile) -> str:
+        """Standard non-streaming generation via Ollama (Gemma 3:4B)."""
         system_prompt = self.build_system_prompt(profile)
-        
-        # Get configured model name (fallback to gemma3:4b)
         model_name = getattr(settings, "OLLAMA_MODEL", getattr(settings, "AI_DEFAULT_MODEL", "gemma3:4b"))
         
         payload = {
@@ -43,7 +47,6 @@ class AIService:
                 
                 if response.status_code == 200:
                     data = response.json()
-                    # Safe extraction of message content from Ollama response
                     message = data.get("message", {})
                     content = message.get("content", "")
                     if content:
@@ -54,13 +57,136 @@ class AIService:
                     print(f"❌ {error_msg}")
                     return error_msg
                     
-        except httpx.ConnectError as exc:
+        except httpx.ConnectError:
             print(f"❌ Connection Error: Unable to connect to Ollama at {settings.OLLAMA_BASE_URL}")
             return "Error: Unable to connect to Ollama. Ensure Ollama is running (`ollama serve`)."
             
         except Exception as e:
-            # Print full exception details in server console for easy debugging
             import traceback
             print("❌ Exception occurred during AI generation:")
             traceback.print_exc()
             return f"An unexpected error occurred: {type(e).__name__} - {str(e)}"
+
+    async def generate_structured_routine(self, profile: Profile) -> dict:
+        """Generates a structured JSON object containing AM and PM routine steps tailored to the user profile."""
+        system_prompt = self.build_system_prompt(profile)
+        model_name = getattr(settings, "OLLAMA_MODEL", getattr(settings, "AI_DEFAULT_MODEL", "gemma3:4b"))
+
+        user_prompt = (
+            "You are a backend JSON generator. Respond ONLY with a valid raw JSON object matching the exact schema below.\n"
+            "Do NOT include conversational text, markdown formatting, or code fence wrappers.\n\n"
+            "Schema:\n"
+            "{\n"
+            '  "am_routine": [{"step_number": 1, "step_type": "Cleanser", "instructions": "...", "key_ingredients": ["..."]}],\n'
+            '  "pm_routine": [{"step_number": 1, "step_type": "Cleanser", "instructions": "...", "key_ingredients": ["..."]}]\n'
+            "}"
+        )
+
+        payload = {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            "stream": False,
+            "format": "json"  # Enforces strict JSON output format from Ollama
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=180.0) as client:
+                response = await client.post(
+                    f"{settings.OLLAMA_BASE_URL}/api/chat",
+                    json=payload
+                )
+
+                if response.status_code == 200:
+                    data = response.json()
+                    raw_response = data.get("message", {}).get("content", "")
+
+                    # 1. Strip code block wrappers if any remain
+                    cleaned = raw_response.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+
+                    # 2. Extract inner JSON payload
+                    json_match = re.search(r"\{.*\}", cleaned, re.DOTALL)
+                    candidate_json = json_match.group(0) if json_match else cleaned
+
+                    parsed_dict = json.loads(candidate_json)
+
+                    # Ensure both routine keys exist
+                    if "am_routine" not in parsed_dict:
+                        parsed_dict["am_routine"] = []
+                    if "pm_routine" not in parsed_dict:
+                        parsed_dict["pm_routine"] = []
+
+                    return parsed_dict
+
+                print(f"❌ Ollama HTTP Error {response.status_code}: {response.text}")
+                return self._fallback_routine(f"HTTP {response.status_code} Error")
+
+        except json.JSONDecodeError:
+            print("⚠️ Failed to parse LLM response into JSON. Returning fallback structure.")
+            return self._fallback_routine("JSON Parsing Error")
+
+        except Exception as e:
+            print(f"❌ AI Routine Generation Exception: {str(e)}")
+            return self._fallback_routine(str(e))
+
+    def _fallback_routine(self, reason: str = "") -> dict:
+        """Provides a safe default skincare routine structure if AI fails or times out."""
+        return {
+            "am_routine": [
+                {
+                    "step_number": 1,
+                    "step_type": "Cleanser",
+                    "instructions": "Wash face with a gentle hydrating cleanser and lukewarm water.",
+                    "key_ingredients": ["Glycerin", "Ceramides"]
+                },
+                {
+                    "step_number": 2,
+                    "step_type": "Moisturizer & Sunscreen",
+                    "instructions": "Apply a lightweight moisturizer followed by broad-spectrum SPF 30+ sunscreen.",
+                    "key_ingredients": ["Zinc Oxide", "Hyaluronic Acid"]
+                }
+            ],
+            "pm_routine": [
+                {
+                    "step_number": 1,
+                    "step_type": "Cleanser",
+                    "instructions": "Double cleanse to remove sunscreen, oil, and impurities.",
+                    "key_ingredients": ["Micellar Water", "Gentle Surfactants"]
+                },
+                {
+                    "step_number": 2,
+                    "step_type": "Night Moisturizer",
+                    "instructions": "Apply a rich moisturizing cream to support skin barrier recovery.",
+                    "key_ingredients": ["Ceramides", "Niacinamide"]
+                }
+            ]
+        }
+
+    async def stream_response(self, prompt: str, profile: Profile) -> AsyncGenerator[str, None]:
+        """Streams response tokens chunk-by-chunk for Server-Sent Events (SSE)."""
+        system_prompt = self.build_system_prompt(profile)
+        model_name = getattr(settings, "OLLAMA_MODEL", getattr(settings, "AI_DEFAULT_MODEL", "gemma3:4b"))
+        
+        payload = {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            "stream": True
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=180.0) as client:
+                async with client.stream("POST", f"{settings.OLLAMA_BASE_URL}/api/chat", json=payload) as response:
+                    async for line in response.aiter_lines():
+                        if line:
+                            data = json.loads(line)
+                            content = data.get("message", {}).get("content", "")
+                            if content:
+                                yield f"data: {json.dumps({'chunk': content})}\n\n"
+                                
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
