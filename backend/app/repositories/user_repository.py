@@ -1,25 +1,31 @@
-import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.user_model import User
+from app.schemas.user_schema import UserCreate
+from app.core.security import get_password_hash
+import uuid
 
 class UserRepository:
-    def __init__(self, db: AsyncSession):
-        self.db = db
-
-    async def get_by_id(self, user_id: str | uuid.UUID) -> User | None:
-        if isinstance(user_id, str):
-            user_id = uuid.UUID(user_id)
-        result = await self.db.execute(select(User).where(User.id == user_id))
+    @staticmethod
+    async def get_by_email(db: AsyncSession, email: str) -> User | None:
+        result = await db.execute(select(User).where(User.email == email))
         return result.scalars().first()
 
-    async def get_by_email(self, email: str) -> User | None:
-        result = await self.db.execute(select(User).where(User.email == email))
+    @staticmethod
+    async def get_by_id(db: AsyncSession, user_id: uuid.UUID) -> User | None:
+        result = await db.execute(select(User).where(User.id == user_id))
         return result.scalars().first()
 
-    async def create(self, user_data: dict) -> User:
-        user = User(**user_data)
-        self.db.add(user)
-        await self.db.commit()
-        await self.db.refresh(user)
-        return user
+    @staticmethod
+    async def create_user(db: AsyncSession, user_in: UserCreate) -> User:
+        hashed_pw = get_password_hash(user_in.password)
+        db_user = User(
+            full_name=user_in.full_name,
+            email=user_in.email,
+            password_hash=hashed_pw,
+            role=user_in.role
+        )
+        db.add(db_user)
+        await db.commit()
+        await db.refresh(db_user)
+        return db_user

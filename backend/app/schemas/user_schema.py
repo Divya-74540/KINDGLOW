@@ -1,30 +1,21 @@
-import uuid
-from datetime import datetime
 from pydantic import BaseModel, EmailStr
+from typing import Optional
+from datetime import datetime
+import uuid
 
-# Schema for incoming registration requests
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     full_name: str
     email: EmailStr
+    role: str = "user"
+
+class UserCreate(UserBase):
     password: str
 
-# Schema for incoming login requests
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-# Schema returned after successful registration or user details fetch
-class UserResponse(BaseModel):
+class UserResponse(UserBase):
     id: uuid.UUID
-    full_name: str
-    email: EmailStr
     is_active: bool
+    profile_image: Optional[str] = None
     created_at: datetime
 
     class Config:
         from_attributes = True
-
-# Schema returned after successful login
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"

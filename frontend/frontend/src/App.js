@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
 import LandingPage from './pages/landingpage/landingpage'; 
-// Points directly to the pages folder location
 import DashboardLayout from './pages/dashboard/dashboardlayout'; 
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return Boolean(localStorage.getItem('token'));
+  });
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (token) => {
+    if (token) {
+      localStorage.setItem('token', token);
+    }
     setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
     setIsLoggedIn(false);
   };
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.jwt_handler import get_current_user
+from app.core.dependencies import get_current_user
 from app.models.user_model import User
 from app.repositories.profile_repository import ProfileRepository
 from app.schemas.profile_schema import ProfileCreate, ProfileResponse

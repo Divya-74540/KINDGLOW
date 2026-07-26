@@ -1,20 +1,23 @@
-from uuid import UUID
-from typing import List, Any, Optional
-from pydantic import BaseModel, ConfigDict
-
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
 class RoutineStep(BaseModel):
     step_number: int
-    step_type: str
+    category: str
+    product_suggestion: str
     instructions: str
-    key_ingredients: Optional[List[str]] = []
-
 
 class RoutineResponse(BaseModel):
-    id: UUID
-    user_id: UUID
-    am_routine: List[RoutineStep]
-    pm_routine: List[RoutineStep]
+    status: str
+    regimen: List[RoutineStep]
+    pro_tips: List[str]
 
-    # Required in Pydantic v2 so FastAPI can convert SQLAlchemy objects seamlessly
-    model_config = ConfigDict(from_attributes=True)
+class RoutineAnalyzeRequest(BaseModel):
+    skin_notes: Optional[str] = Field(default="", description="User skin notes or calibration details")
+    photo_url: Optional[str] = Field(default=None, description="Optional uploaded photo path/URL")
+
+class RoutineCompleteResponse(BaseModel):
+    status: str
+    completed_at: str
+    progress_counter: int
+    message: str

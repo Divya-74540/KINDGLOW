@@ -1,40 +1,27 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.config import settings
 from app.core.database import get_db
+from app.core.jwt_handler import verify_access_token
 from app.repositories.user_repository import UserRepository
-from app.models.user_model import User
+import uuid
 
-security_scheme = HTTPBearer()
+security = HTTPBearer()
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
-    db: AsyncSession = Depends(get_db)
-) -> User:
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: AsyncSession = Depends(get_db)):
     token = credentials.credentials
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+    user_id_str = verify_access_token(token, credentials_exception)
     try:
-        secret_key = getattr(settings, "SECRET_KEY", "super-secret-key-12345")
-        algorithm = getattr(settings, "ALGORITHM", "HS256")
-        
-        payload = jwt.decode(token, secret_key, algorithms=[algorithm])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-    except jwt.PyJWTError:
-        raise credentials_exception
-
-    user_repo = UserRepository(db)
-    user = await user_repo.get_by_id(user_id)
-    if user is None:
+        user_uuid = uuid.UUID(user_id_str)
+    except ValueError:
         raise credentials_exception
         
+    user = await UserRepository.get_by_id(db, user_uuid)
+    if user is None or not user.is_active:
+        raise credentials_exception
     return user

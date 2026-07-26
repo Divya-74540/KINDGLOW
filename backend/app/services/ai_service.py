@@ -10,22 +10,22 @@ class AIService:
     @staticmethod
     def build_system_prompt(profile: Profile) -> str:
         """Constructs a system prompt injecting the user's skin profile context."""
-        concerns = ", ".join(profile.skin_concerns) if profile.skin_concerns else "None specified"
-        allergies = ", ".join(profile.known_allergies) if profile.known_allergies else "None"
+        concerns = ", ".join(profile.skin_concerns) if getattr(profile, 'skin_concerns', None) else "None specified"
+        allergies = ", ".join(profile.known_allergies) if getattr(profile, 'known_allergies', None) else "None"
         
         return (
             f"You are KINDGLOW, an expert dermatological and skincare AI assistant. "
             f"Tailor all recommendations strictly to the user's personal skin profile:\n"
-            f"- Skin Type: {profile.skin_type}\n"
+            f"- Skin Type: {getattr(profile, 'skin_type', 'N/A')}\n"
             f"- Primary Concerns: {concerns}\n"
-            f"- Climate: {profile.climate or 'Not specified'}\n"
-            f"- Age Group: {profile.age_group or 'Not specified'}\n"
+            f"- Climate: {getattr(profile, 'climate', 'Not specified')}\n"
+            f"- Age Group: {getattr(profile, 'age_group', 'Not specified')}\n"
             f"- Known Allergies/Sensitivities: {allergies}\n\n"
             f"Provide safe, clear, and actionable skincare advice. Strictly avoid recommending ingredients that conflict with their allergies."
         )
 
     async def generate_response(self, prompt: str, profile: Profile) -> str:
-        """Standard non-streaming generation via Ollama (Gemma 3:4B)."""
+        """Standard non-streaming generation via Ollama (Gemma 3:4B) with high timeout threshold."""
         system_prompt = self.build_system_prompt(profile)
         model_name = getattr(settings, "OLLAMA_MODEL", getattr(settings, "AI_DEFAULT_MODEL", "gemma3:4b"))
         
@@ -39,7 +39,8 @@ class AIService:
         }
 
         try:
-            async with httpx.AsyncClient(timeout=180.0) as client:
+            # High 300.0s timeout to prevent ReadTimeout during model cold load / heavy computation
+            async with httpx.AsyncClient(timeout=300.0) as client:
                 response = await client.post(
                     f"{settings.OLLAMA_BASE_URL}/api/chat",
                     json=payload
@@ -56,10 +57,14 @@ class AIService:
                     error_msg = f"Ollama HTTP {response.status_code}: {response.text}"
                     print(f"❌ {error_msg}")
                     return error_msg
-                    
+
+        except httpx.ReadTimeout:
+            print("⏱️ AI Service ReadTimeout: Ollama took too long to respond.")
+            return "The AI model timed out while processing your request. Please ensure Ollama is running and warm (`ollama run gemma3:4b`)."
+            
         except httpx.ConnectError:
             print(f"❌ Connection Error: Unable to connect to Ollama at {settings.OLLAMA_BASE_URL}")
-            return "Error: Unable to connect to Ollama. Ensure Ollama is running (`ollama serve`)."
+            return "Error: Unable to connect to Ollama. Ensure Ollama service is active (`ollama serve`)."
             
         except Exception as e:
             import traceback
@@ -93,7 +98,7 @@ class AIService:
         }
 
         try:
-            async with httpx.AsyncClient(timeout=180.0) as client:
+            async with httpx.AsyncClient(timeout=300.0) as client:
                 response = await client.post(
                     f"{settings.OLLAMA_BASE_URL}/api/chat",
                     json=payload
@@ -103,16 +108,15 @@ class AIService:
                     data = response.json()
                     raw_response = data.get("message", {}).get("content", "")
 
-                    # 1. Strip code block wrappers if any remain
+                    # Clean markdown code fences if present
                     cleaned = raw_response.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
 
-                    # 2. Extract inner JSON payload
+                    # Extract inner JSON payload
                     json_match = re.search(r"\{.*\}", cleaned, re.DOTALL)
                     candidate_json = json_match.group(0) if json_match else cleaned
 
                     parsed_dict = json.loads(candidate_json)
 
-                    # Ensure both routine keys exist
                     if "am_routine" not in parsed_dict:
                         parsed_dict["am_routine"] = []
                     if "pm_routine" not in parsed_dict:
@@ -121,17 +125,17 @@ class AIService:
                     return parsed_dict
 
                 print(f"❌ Ollama HTTP Error {response.status_code}: {response.text}")
-                return self._fallback_routine(f"HTTP {response.status_code} Error")
+                return self._fallback_routine()
 
-        except json.JSONDecodeError:
-            print("⚠️ Failed to parse LLM response into JSON. Returning fallback structure.")
-            return self._fallback_routine("JSON Parsing Error")
+        except (httpx.ReadTimeout, json.JSONDecodeError) as err:
+            print(f"⚠️ Routine generation fallback triggered due to: {type(err).__name__}")
+            return self._fallback_routine()
 
         except Exception as e:
             print(f"❌ AI Routine Generation Exception: {str(e)}")
-            return self._fallback_routine(str(e))
+            return self._fallback_routine()
 
-    def _fallback_routine(self, reason: str = "") -> dict:
+    def _fallback_routine(self) -> dict:
         """Provides a safe default skincare routine structure if AI fails or times out."""
         return {
             "am_routine": [
@@ -179,7 +183,7 @@ class AIService:
         }
 
         try:
-            async with httpx.AsyncClient(timeout=180.0) as client:
+            async with httpx.AsyncClient(timeout=300.0) as client:
                 async with client.stream("POST", f"{settings.OLLAMA_BASE_URL}/api/chat", json=payload) as response:
                     async for line in response.aiter_lines():
                         if line:
