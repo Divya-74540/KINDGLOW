@@ -1,31 +1,17 @@
 import React, { useState } from 'react';
+// Ensure these match their respective files' export styles:
 import LandingPage from './pages/landingpage/landingpage'; 
-import DashboardLayout from './pages/dashboard/dashboardlayout'; 
+import DashboardLayout from './pages/dashboard/dashboardlayout';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return Boolean(localStorage.getItem('token'));
-  });
-
-  const handleLoginSuccess = (token) => {
-    if (token) {
-      localStorage.setItem('token', token);
-    }
-    setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('access_token');
-    setIsLoggedIn(false);
-  };
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <div className="app-root-container">
+    <div className="App">
       {isLoggedIn ? (
-        <DashboardLayout onLogout={handleLogout} />
+        <DashboardLayout onLogout={() => setIsLoggedIn(false)} />
       ) : (
-        <LandingPage onLoginSuccess={handleLoginSuccess} />
+        <LandingPage onLoginSuccess={() => setIsLoggedIn(true)} />
       )}
     </div>
   );

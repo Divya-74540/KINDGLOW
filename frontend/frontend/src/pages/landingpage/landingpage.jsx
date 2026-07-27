@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import "./landingpage.css";
+import { api } from "../../services/api";
 
 // Base Hero Asset Imports
 import serumImage from "../../asset/images/serum.png";
@@ -32,6 +33,11 @@ function LandingPage({ onLoginSuccess }) { // Catching the login handler prop fr
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [authMode, setAuthMode] = useState("login");
 
+    // Auth Form Input States
+    const [authEmail, setAuthEmail] = useState("");
+    const [authPassword, setAuthPassword] = useState("");
+    const [authUsername, setAuthUsername] = useState("");
+
     // Dynamic Professional Toast Notifications
     const [toast, setToast] = useState({ visible: false, message: "", type: "info" });
 
@@ -61,23 +67,44 @@ function LandingPage({ onLoginSuccess }) { // Catching the login handler prop fr
         setAuthMode("register");
         setShowAuthModal(true);
     };
-
-    const handleAuthSubmit = (e) => {
+const handleAuthSubmit = async (e) => {
         e.preventDefault();
-        if (authMode === "register") {
-            triggerToast("Profile node established. Re-routing to Authentication console...", "success");
-            setAuthMode("login"); 
-        } else {
-            triggerToast("Authentication matrix verification successful. Entry granted.", "success");
-            setShowAuthModal(false);
-            
-            // This triggers the view toggle in App.js to open your dashboard layout instantly
-            if (onLoginSuccess) {
-                onLoginSuccess();
+        try {
+            if (authMode === "register") {
+                const response = await api.register({
+                    full_name: authUsername, // Mapped to backend RegisterSchema expectation
+                    email: authEmail,
+                    password: authPassword
+                });
+                
+                const successMsg = response?.message || "Profile node established! Please sign in now.";
+                triggerToast(successMsg, "success");
+                setAuthMode("login"); 
+            } else {
+                const response = await api.login({
+                    email: authEmail,
+                    password: authPassword
+                });
+
+                const token = response?.token || response?.access_token;
+                if (token) {
+                    localStorage.setItem("token", token);
+                }
+
+                const successMsg = response?.message || "Authentication matrix verification successful. Entry granted.";
+                triggerToast(successMsg, "success");
+                setShowAuthModal(false);
+                
+                if (onLoginSuccess) {
+                    onLoginSuccess();
+                }
             }
+        } catch (error) {
+            const errorMsg = error?.message || error?.detail || (typeof error === "string" ? error : "Access denied. Please check your inputs.");
+            triggerToast(errorMsg, "error");
         }
     };
-
+    
     const topicDetails = {
         general: { title: "Let's co-create glowing experiences.", sub: "Have a general inquiry, feature suggestion, or partnership idea? Drop a transmission directly to our desk." },
         dermatology: { title: "Seeking algorithmic verification?", sub: "Our data modeling maps complex biological variables. Reach out to coordinate peer reviews or database syncs." },
@@ -425,18 +452,39 @@ function LandingPage({ onLoginSuccess }) { // Catching the login handler prop fr
                         <form onSubmit={handleAuthSubmit} className="auth-console-form">
                             {authMode === "register" && (
                                 <div className="input-frame">
-                                    <input type="text" required placeholder=" " id="auth-username" />
+                                    <input 
+                                        type="text" 
+                                        required 
+                                        placeholder=" " 
+                                        id="auth-username" 
+                                        value={authUsername}
+                                        onChange={(e) => setAuthUsername(e.target.value)}
+                                    />
                                     <label htmlFor="auth-username">Select Username</label>
                                 </div>
                             )}
 
                             <div className="input-frame">
-                                <input type="email" required placeholder=" " id="auth-email" />
+                                <input 
+                                    type="email" 
+                                    required 
+                                    placeholder=" " 
+                                    id="auth-email" 
+                                    value={authEmail}
+                                    onChange={(e) => setAuthEmail(e.target.value)}
+                                />
                                 <label htmlFor="auth-email">Email Address</label>
                             </div>
 
                             <div className="input-frame">
-                                <input type="password" required placeholder=" " id="auth-password" />
+                                <input 
+                                    type="password" 
+                                    required 
+                                    placeholder=" " 
+                                    id="auth-password" 
+                                    value={authPassword}
+                                    onChange={(e) => setAuthPassword(e.target.value)}
+                                />
                                 <label htmlFor="auth-password">Security Password</label>
                             </div>
 

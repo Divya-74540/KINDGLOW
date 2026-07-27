@@ -1,8 +1,8 @@
+import uuid
 from sqlalchemy import Column, String, Boolean, DateTime, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
-import uuid
 
 class User(Base):
     __tablename__ = "users"
@@ -17,5 +17,4 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=text("now()"), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=text("now()"), nullable=False)
 
-    # Add this line to satisfy the Profile model's back_populates requirement:
     profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")

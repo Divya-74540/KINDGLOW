@@ -30,7 +30,7 @@ import {
 } from 'react-icons/fa';
 import './dashboardlayout.css';
 
-import { apiFetch } from '../../services/api';
+import { api } from '../../services/api';
 import RitualModal from './RitualModal';
 
 function DashboardLayout({ onLogout }) {
@@ -141,7 +141,7 @@ function DashboardLayout({ onLogout }) {
     const fetchInitialDashboardData = async () => {
         try {
             setIsLoading(true);
-            const data = await apiFetch('/dashboard/stats');
+            const data = await api.getDashboardData();
             if (data) {
                 if (data.moisture_level !== undefined) setMoistureLevel(data.moisture_level);
                 if (data.sunscreen_reminder) setSunscreenData(data.sunscreen_reminder);
