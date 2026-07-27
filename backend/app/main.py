@@ -31,7 +31,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ==================== FALLBACK ROUTES FIRST (TO PREVENT ROUTE OVERRIDE) ====================
+# ==================== REQUEST SCHEMAS FOR FALLBACKS ====================
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -41,6 +41,10 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
 
+class RoutineRequest(BaseModel):
+    prompt: Optional[str] = None
+
+# ==================== FALLBACK ROUTES FIRST (TO PREVENT ROUTE OVERRIDE) ====================
 @app.post("/auth/login", tags=["Auth Fallback"])
 @app.post("/api/auth/login", tags=["Auth Fallback"])
 async def fallback_login(payload: LoginRequest):
@@ -63,11 +67,26 @@ async def fallback_register(payload: RegisterRequest):
 async def fallback_dashboard_stats():
     """Placed before router inclusions so it intercepts and returns mock stats cleanly."""
     return {
+        "moisture_level": 80,
         "moisture_protocol": 80,
         "completed_tasks": 0,
         "total_tasks": 5,
-        "sunscreen_status": "SPF 30 active and protecting your skin.",
-        "recent_activity": []
+        "sunscreen_reminder": {
+            "status": "Applied",
+            "message": "SPF 30 active and protecting your skin.",
+            "actionRequired": False
+        },
+        "recent_history": []
+    }
+
+@app.post("/api/routine/generate", tags=["Routine Fallback"])
+@app.post("/api/v1/dashboard/routine", tags=["Routine Fallback"])
+async def fallback_generate_routine(payload: Optional[RoutineRequest] = None):
+    """Fallback endpoint for AI Skincare Routine Generator matching both paths."""
+    user_prompt = payload.prompt if payload and payload.prompt else "Generate custom routine based on user skin profile"
+    return {
+        "status": "success",
+        "message": f"Custom AI routine successfully generated based on: '{user_prompt}'"
     }
 
 # ==================== INCLUDE API ROUTERS AFTER FALLBACKS ====================

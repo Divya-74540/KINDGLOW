@@ -57,5 +57,17 @@ export const api = {
 
     async getDashboardData() {
         return this.getDashboardStats();
+    },
+
+    async generateRoutine(promptText) {
+        const response = await fetch(`${API_BASE_URL}/api/v1/dashboard/routine`, {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ prompt: promptText }),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to generate AI routine");
+        }
+        return response.json();
     }
 };

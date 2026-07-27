@@ -88,6 +88,7 @@ function DashboardLayout({ onLogout }) {
 
     // Dedicated state for the AI Skincare Routine Generator panel view
     const [isRoutineOpen, setIsRoutineOpen] = useState(false);
+    const [routineApiResponse, setRoutineApiResponse] = useState("");
     const [routineSteps, setRoutineSteps] = useState({
         stepCleanse: false,
         stepExfoliate: false,
@@ -156,6 +157,19 @@ function DashboardLayout({ onLogout }) {
         }
     };
 
+    // Connected routine generator handler calling backend API
+    const handleLaunchRoutine = async (userPrompt) => {
+        try {
+            const result = await api.generateRoutine(userPrompt);
+            console.log("AI Routine Response:", result);
+            if (result && result.message) {
+                setRoutineApiResponse(result.message);
+            }
+        } catch (error) {
+            console.error("Error launching routine ritual:", error);
+        }
+    };
+
     const handleCardClick = (feature) => {
         setIsChatOpen(false);
         setIsRoutineOpen(false);
@@ -167,6 +181,7 @@ function DashboardLayout({ onLogout }) {
             setIsChatOpen(true);
         } else if (feature.id === 'routine') {
             setIsRoutineOpen(true);
+            handleLaunchRoutine("Generate custom routine based on user skin profile");
         } else if (feature.id === 'planner') {
             setIsPlannerOpen(true);
         } else if (feature.id === 'journal') {
@@ -176,7 +191,7 @@ function DashboardLayout({ onLogout }) {
         }
     };
 
-const handleTaskComplete = (featureId) => {
+    const handleTaskComplete = (featureId) => {
         if (!completedPanels.includes(featureId)) {
             setCompletedPanels(prev => [...prev, featureId]);
         }
@@ -449,7 +464,6 @@ const handleTaskComplete = (featureId) => {
                 </aside>
 
                 <main className="main-content-panel center-aligned-layout">
-                    {/* 1. History Full View Modal/Panel */}
                     {isHistoryOpen ? (
                         <div className="chat-interface-container animate-fade-in" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', height: '650px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)' }}>
                             <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -491,7 +505,6 @@ const handleTaskComplete = (featureId) => {
                             </div>
                         </div>
                     ) : isJournalOpen ? (
-                        /* 2. Aesthetic Beauty Journal & Achievements View */
                         <div className="chat-interface-container animate-fade-in" style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid #fbcfe8', display: 'flex', flexDirection: 'column', height: '680px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(236, 72, 153, 0.08)' }}>
                             <div style={{ background: 'linear-gradient(135deg, #fdf2f8, #f5f3ff)', borderBottom: '1px solid #fce7f3', padding: '18px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -508,7 +521,6 @@ const handleTaskComplete = (featureId) => {
                                 </button>
                             </div>
 
-                            {/* Journal Input Creator Bar with Upload & Remove */}
                             <div style={{ background: '#fff9fb', padding: '16px 24px', borderBottom: '1px solid #fce7f3' }}>
                                 <form onSubmit={handleAddJournalEntry} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                     <input 
@@ -551,7 +563,6 @@ const handleTaskComplete = (featureId) => {
                                 )}
                             </div>
 
-                            {/* Journal Feed Grid */}
                             <div style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', background: '#fdf2f8' }}>
                                 {journalEntries.map((entry) => (
                                     <div key={entry.id} style={{ background: '#ffffff', border: '1px solid #fbcfe8', borderRadius: '16px', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 15px rgba(236, 72, 153, 0.05)', transition: 'transform 0.2s' }}>
@@ -583,7 +594,6 @@ const handleTaskComplete = (featureId) => {
                             </div>
                         </div>
                     ) : isRoutineOpen ? (
-                        /* 3. AI Skincare Routine Generator View with Upload & Remove */
                         <div className="chat-interface-container animate-fade-in" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', height: '650px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)' }}>
                             <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -606,7 +616,12 @@ const handleTaskComplete = (featureId) => {
                             </div>
 
                             <div style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc' }}>
-                                {/* Upload Box Inside the Panel */}
+                                {routineApiResponse && (
+                                    <div style={{ background: '#fdf2f8', border: '1px solid #fbcfe8', padding: '14px 18px', borderRadius: '12px', color: '#831843', fontSize: '0.88rem' }}>
+                                        <strong>AI Engine Recommendation:</strong> {routineApiResponse}
+                                    </div>
+                                )}
+
                                 <div style={{ background: '#ffffff', border: '1px dashed #fbcfe8', padding: '16px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
                                         <div style={{ background: '#fdf2f8', color: '#db2777', padding: '10px', borderRadius: '8px' }}>
@@ -666,7 +681,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>Step 1: Gentle Cleansing</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#831843' }}>Protocol: Remove impurities and surface oils using a mild, hydrating cleanser with lukewarm water.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#9d174d', fontStyle: 'italic' }}>Pro Tip: Massage gently for 30 seconds without pulling or tugging facial skin.</p>
                                             </div>
                                         </label>
 
@@ -680,7 +694,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>Step 2: Chemical Exfoliation (Optional / Periodic)</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#831843' }}>Protocol: Apply mild AHA/BHA liquid solution to sweep away dead skin buildup.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#9d174d', fontStyle: 'italic' }}>Pro Tip: Limit this step to 2-3 times per week to preserve your natural skin barrier.</p>
                                             </div>
                                         </label>
 
@@ -694,7 +707,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>Step 3: Balancing Toner / Hydrating Essence</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#831843' }}>Protocol: Press soothing toner rich in glycerin and hyaluronic acid into skin.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#9d174d', fontStyle: 'italic' }}>Pro Tip: Pat gently with your palms instead of wiping with friction.</p>
                                             </div>
                                         </label>
 
@@ -708,7 +720,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>Step 4: Targeted Active Serum</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#831843' }}>Protocol: Apply specialized treatment drops (Vitamin C, Niacinamide, or Peptides) to face and neck.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#9d174d', fontStyle: 'italic' }}>Pro Tip: Allow 60 seconds for deep penetration before sealing.</p>
                                             </div>
                                         </label>
 
@@ -722,7 +733,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>Step 5: Barrier Cream / Moisturizer</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#831843' }}>Protocol: Seal hydration and active ingredients using a ceramide-rich barrier cream.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#9d174d', fontStyle: 'italic' }}>Pro Tip: Extend application down to your neck to maintain uniform skin texture.</p>
                                             </div>
                                         </label>
 
@@ -736,7 +746,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>Step 6: UV Protection Shield</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#831843' }}>Protocol: Layer broad-spectrum sunscreen evenly across all exposed skin areas.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#9d174d', fontStyle: 'italic' }}>Pro Tip: Reapply every two hours if exposed to outdoor daylight.</p>
                                             </div>
                                         </label>
                                     </div>
@@ -744,7 +753,6 @@ const handleTaskComplete = (featureId) => {
                             </div>
                         </div>
                     ) : isPlannerOpen ? (
-                        /* 4. AI Morning & Night Planner View with Upload & Remove */
                         <div className="chat-interface-container animate-fade-in" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', height: '650px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)' }}>
                             <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -767,7 +775,6 @@ const handleTaskComplete = (featureId) => {
                             </div>
 
                             <div style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', background: '#f8fafc' }}>
-                                {/* Upload Box Inside the Planner Panel */}
                                 <div style={{ background: '#ffffff', border: '1px dashed #fef3c7', padding: '16px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
                                         <div style={{ background: '#fffbeb', color: '#d97706', padding: '10px', borderRadius: '8px' }}>
@@ -810,7 +817,6 @@ const handleTaskComplete = (featureId) => {
                                     )}
                                 </div>
 
-                                {/* Morning Routine Planner Section */}
                                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#d97706' }}>
                                         <FaSun size={18} />
@@ -828,7 +834,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>1. Morning Cleanse & Vitamin C</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#78350f' }}>Protocol: Wash with lukewarm water and apply antioxidant serum for daytime defense.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#92400e', fontStyle: 'italic' }}>Pro Tip: Pat serum into slightly damp skin to boost absorption.</p>
                                             </div>
                                         </label>
 
@@ -842,7 +847,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>2. Daily Hydration Layer</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#78350f' }}>Protocol: Apply lightweight moisturizer to lock in vital moisture without heaviness.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#92400e', fontStyle: 'italic' }}>Pro Tip: Choose oil-free formulas if your skin tends to feel oily by midday.</p>
                                             </div>
                                         </label>
 
@@ -856,13 +860,11 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>3. Broad-Spectrum Sun Protection</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#78350f' }}>Protocol: Apply SPF 30+ sunscreen as your final morning shield step.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#92400e', fontStyle: 'italic' }}>Pro Tip: Essential for preventing premature photo-aging and dark spots.</p>
                                             </div>
                                         </label>
                                     </div>
                                 </div>
 
-                                {/* Evening Routine Planner Section */}
                                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#7c3aed' }}>
                                         <FaMoon size={18} />
@@ -880,7 +882,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>1. Double Cleansing Protocol</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#5b21b6' }}>Protocol: Use oil cleanser to dissolve sunscreen, followed by a gentle water-based cleanser.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#6d28d9', fontStyle: 'italic' }}>Pro Tip: Cleanses deep inside pores to clear daily grime effectively.</p>
                                             </div>
                                         </label>
 
@@ -894,7 +895,6 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>2. Cellular Repair & Retinol Treatment</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#5b21b6' }}>Protocol: Apply a pea-sized amount of retinol or targeted night serum on clean skin.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#6d28d9', fontStyle: 'italic' }}>Pro Tip: Introduce slowly (2 nights a week) if you are new to active retinoids.</p>
                                             </div>
                                         </label>
 
@@ -908,16 +908,13 @@ const handleTaskComplete = (featureId) => {
                                             <div>
                                                 <strong>3. Intensive Night Cream Sealing</strong>
                                                 <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#5b21b6' }}>Protocol: Finish with a rich ceramide cream to seal hydration overnight.</p>
-                                                <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#6d28d9', fontStyle: 'italic' }}>Pro Tip: Supports overnight barrier recovery while you rest.</p>
                                             </div>
                                         </label>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     ) : isChatOpen ? (
-                        /* 5. AI Chat Bot View with Image Upload & Remove */
                         <div className="chat-interface-container animate-fade-in" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', height: '650px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)' }}>
                             <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
