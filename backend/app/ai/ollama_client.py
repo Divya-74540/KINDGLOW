@@ -1,11 +1,23 @@
-import httpx
-from app.core.config import settings
+import ollama
+from typing import Optional
 
-async def generate_chat_response(prompt: str, model: str = "gemma3:4b") -> str:
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        response = await client.post(
-            f"{settings.OLLAMA_HOST}/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False}
+DEFAULT_MODEL = "gemma3:4b"
+
+async def generate_chat_response(prompt: str, system_prompt: Optional[str] = None, model: str = DEFAULT_MODEL) -> str:
+    """Sends a chat prompt to local Ollama model asynchronously and returns the response."""
+    messages = []
+    
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    
+    messages.append({"role": "user", "content": prompt})
+
+    try:
+        # If ollama library supports async or sync execution
+        response = ollama.chat(
+            model=model,
+            messages=messages
         )
-        response.raise_for_status()
-        return response.json().get("response", "")
+        return response['message']['content']
+    except Exception as e:
+        return f"[Ollama Error]: Ensure local Ollama is running and model '{model}' is pulled. Details: {str(e)}"
