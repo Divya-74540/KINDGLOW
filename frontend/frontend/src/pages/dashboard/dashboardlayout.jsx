@@ -176,7 +176,7 @@ function DashboardLayout({ onLogout }) {
         }
     };
 
-    const handleTaskComplete = (featureId) => {
+const handleTaskComplete = (featureId) => {
         if (!completedPanels.includes(featureId)) {
             setCompletedPanels(prev => [...prev, featureId]);
         }
@@ -193,12 +193,18 @@ function DashboardLayout({ onLogout }) {
         setRecentActivity(prev => [newActivityEntry, ...prev]);
     };
 
-    const handleApplySunscreen = () => {
+    const handleApplySunscreen = async () => {
         setSunscreenData({
             status: "Applied",
             message: "SPF 30 active and protecting your skin.",
             actionRequired: false
         });
+
+        try {
+            await api.triggerSunscreen({ status: "Applied" });
+        } catch (err) {
+            console.error("Failed to sync sunscreen status:", err);
+        }
 
         const newActivityEntry = {
             id: Date.now(),

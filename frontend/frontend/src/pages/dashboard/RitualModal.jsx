@@ -54,32 +54,50 @@ function RitualModal({ feature, onClose, onComplete }) {
         setIsLoading(true);
 
         try {
-            // Simulated AI processing with photo/text awareness
-            setTimeout(() => {
-                let aiReply = `Processed your request successfully for ${feature.title}. All parameters look optimal.`;
-                if (currentPreview) {
-                    aiReply = `📸 Photo analyzed successfully! The AI scan for ${feature.title} detects good baseline alignment with minor localized dryness. Recommended to follow your active hydration protocol.`;
-                } else if (userText) {
-                    aiReply = `Analysis complete for "${userText}": Custom parameters generated successfully for your skin profile.`;
-                }
+            // Map your feature id/endpoint to your actual FastAPI backend routes shown in Swagger
+            // e.g., feature.endpoint could be "/ai/acne/analyze", "/ai/skintype/analyze", etc.
+            const endpoint = feature?.endpoint || "/ai/chat/consultant";
+            
+            const payload = {
+                prompt: userText || "Analyze uploaded scan image",
+                // Include image data if your backend accepts base64 or file upload schemas
+                image_url: currentPreview || null 
+            };
 
-                setMessages(prev => [
-                    ...prev,
-                    { sender: 'ai', text: aiReply, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-                ]);
-                setIsLoading(false);
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:8000${endpoint}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token ? { "Authorization": `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify(payload)
+            });
 
-                // Mark the panel as completed and update history/checkboxes in the dashboard
-                if (onComplete) {
-                    onComplete(feature.id);
-                }
-            }, 1200);
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.detail || "Failed to communicate with local AI service.");
+            }
+
+            const data = await response.json();
+            const aiReply = data?.response || data?.message || data?.result || "Analysis completed successfully by local AI engine.";
+
+            setMessages(prev => [
+                ...prev,
+                { sender: 'ai', text: aiReply, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+            ]);
+            setIsLoading(false);
+
+            // Mark the panel as completed and update history/checkboxes in the dashboard
+            if (onComplete) {
+                onComplete(feature.id);
+            }
 
         } catch (err) {
             console.error("Ritual execution error:", err);
             setMessages(prev => [
                 ...prev,
-                { sender: 'ai', text: 'Sorry, we encountered an error processing your request. Please try again.', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+                { sender: 'ai', text: err.message || 'Sorry, we encountered an error processing your request with Ollama. Please check backend logs.', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
             ]);
             setIsLoading(false);
         }

@@ -82,7 +82,7 @@ const handleAuthSubmit = async (e) => {
                 setAuthMode("login"); 
             } else {
                 const response = await api.login({
-                    email: authEmail,
+                    username: authEmail, // OAuth2PasswordRequestForm expects 'username' instead of 'email'
                     password: authPassword
                 });
 
@@ -104,7 +104,6 @@ const handleAuthSubmit = async (e) => {
             triggerToast(errorMsg, "error");
         }
     };
-    
     const topicDetails = {
         general: { title: "Let's co-create glowing experiences.", sub: "Have a general inquiry, feature suggestion, or partnership idea? Drop a transmission directly to our desk." },
         dermatology: { title: "Seeking algorithmic verification?", sub: "Our data modeling maps complex biological variables. Reach out to coordinate peer reviews or database syncs." },
